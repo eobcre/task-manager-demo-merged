@@ -3,14 +3,12 @@ const app = express();
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
-const commentsRoute = require('./routes/comments');
 const tasksRoute = require('./routes/tasks');
 dotenv.config();
 
 app.use(cors());
 app.use(express.json());
 // routes
-app.use('/api', commentsRoute);
 app.use('/api', tasksRoute);
 
 // app.get('/', (req, res) => {
