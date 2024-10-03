@@ -1,6 +1,17 @@
 import Button from './Button';
 
-const Grid = () => {
+interface Task {
+  _id: string;
+  taskName: string;
+  documentType: string;
+  createdAt: string;
+}
+
+interface GridProps {
+  taskData: Task[];
+}
+
+const Grid: React.FC<GridProps> = ({ taskData }) => {
   return (
     <div className='border border-slate-500 rounded-md w-full h-auto'>
       {/* header row */}
@@ -12,25 +23,17 @@ const Grid = () => {
         <div></div>
       </div>
       {/* data row */}
-      <div className='col-span-4 grid grid-cols-[0.5fr_0.5fr_0.5fr_0.5fr_0.4fr] text-dark border-b border-slate-300 p-4'>
-        <div>Review</div>
-        <div>John Doe</div>
-        <div>Application</div>
-        <div>10/24/2024</div>
-        <div>
-          <Button buttonName='View' buttonStyle='text-white bg-purple hover:opacity-90 rounded-md px-6 py-1' />
+      {taskData.map((cell) => (
+        <div key={cell._id} className='col-span-4 grid grid-cols-[0.5fr_0.5fr_0.5fr_0.5fr_0.4fr] text-dark border-b border-slate-300 p-4'>
+          <div>{cell.taskName}</div>
+          <div>Jane Smith</div>
+          <div>{cell.documentType}</div>
+          <div>{new Date(cell.createdAt).toLocaleDateString()}</div>
+          <div>
+            <Button buttonName='View' buttonStyle='text-white bg-purple hover:opacity-90 rounded-md px-6 py-1' />
+          </div>
         </div>
-      </div>
-      {/* data row*/}
-      <div className='col-span-4 grid grid-cols-[0.5fr_0.5fr_0.5fr_0.5fr_0.4fr] text-dark border-b border-slate-300 p-4'>
-        <div>Approval</div>
-        <div>Jane Smith</div>
-        <div>Contract</div>
-        <div>10/25/2024</div>
-        <div>
-          <Button buttonName='View' buttonStyle='text-white bg-purple hover:opacity-90 rounded-md px-6 py-1' />
-        </div>
-      </div>
+      ))}
     </div>
   );
 };
