@@ -3,12 +3,16 @@ const app = express();
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+
+const loginRoute = require('./routes/login');
 const tasksRoute = require('./routes/tasks');
+
 dotenv.config();
 
 app.use(cors());
 app.use(express.json());
 // routes
+app.use('/api', loginRoute);
 app.use('/api', tasksRoute);
 
 // app.get('/', (req, res) => {
@@ -24,6 +28,6 @@ mongoose
   })
   .catch((err) => console.log(err));
 
-  app.listen(process.env.PORT, () => {
-    console.log(`Server is running in ${process.env.PORT}`);
-  });
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running in ${process.env.PORT}`);
+});
