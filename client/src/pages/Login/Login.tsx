@@ -10,7 +10,7 @@ const Login = () => {
   const [name, setName] = useState('');
   const [passcode, setPasscode] = useState('');
   const [invalidLogin, setInvalidLogin] = useState('');
-  const { setUserLogin, setUserName } = useLoginStore();
+  const { setUserLogin, setUserId, setUserName, setFlag } = useLoginStore();
 
   const navigate = useNavigate();
 
@@ -34,10 +34,12 @@ const Login = () => {
 
     try {
       const serverClient = new ServerClient('/api/login');
-      const res = await serverClient.post({ name, passcode });
+      const res = await serverClient.post({ name, passcode,  });
       console.log('res', res.data);
-      setUserName(res.data.name);
       setUserLogin(true);
+      setUserId(res.data.userId);
+      setUserName(res.data.name);
+      setFlag(res.data.flag);
       navigate('/Tasks');
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
