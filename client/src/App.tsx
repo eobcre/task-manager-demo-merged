@@ -1,19 +1,21 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import useStore from './store/useStore';
+import useLoginStore from './store/useLoginStore';
 import Login from './pages/Login/Login';
 import Nav from './components/Nav';
 import Tasks from './pages/Tasks';
 import Settings from './pages/Settings';
 
 const App = () => {
-  const { isNavOpen, auth } = useStore();
+  const { isNavOpen } = useStore();
+  const { userLogin } = useLoginStore();
 
   return (
-    <div className={auth ? 'flex' : ''}>
-      {auth && <Nav />}
-      <main className={`${auth ? `bg-lightGray w-full ${isNavOpen ? '330px' : '65px'}` : ''}`}>
+    <div className={userLogin ? 'flex' : ''}>
+      {userLogin && <Nav />}
+      <main className={`${userLogin ? `bg-lightGray w-full ${isNavOpen ? '330px' : '65px'}` : ''}`}>
         <Routes>
-          {!auth ? (
+          {!userLogin ? (
             <Route path='*' element={<Login />} />
           ) : (
             <>
