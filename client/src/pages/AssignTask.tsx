@@ -1,17 +1,65 @@
+import { useState, useEffect } from 'react';
+import ServerClient from '../services/ServerClient';
+import Select from 'react-select';
+import useLoginStore from '../store/useLoginStore';
 import { assignTaskData, assignDocumentTypeData } from '../data/assignTaskData';
 import Button from '../components/Button';
+
+interface Assignee {
+  userId: number;
+  username: string;
+}
 
 interface AssignTaskProps {
   onSubmit: () => void;
   selectedTask: string;
   selectedDocumentType: string;
   description: string;
+  setSelectedAssignee: (assignee: Assignee | null) => void;
   handleChangeTask: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleChangeDocumentType: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleChangeDesc: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
-const AssignTask: React.FC<AssignTaskProps> = ({ onSubmit, selectedTask, description, selectedDocumentType, handleChangeTask, handleChangeDocumentType, handleChangeDesc }) => {
+interface Member {
+  userId: number;
+  username: string;
+}
+
+const AssignTask: React.FC<AssignTaskProps> = ({
+  onSubmit,
+  selectedTask,
+  description,
+  selectedDocumentType,
+  setSelectedAssignee,
+  handleChangeTask,
+  handleChangeDocumentType,
+  handleChangeDesc,
+}) => {
+  const [members, setMembers] = useState<Member[]>([]);
+  const { userName } = useLoginStore();
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const serverClient = new ServerClient('/api/retrieveMembers');
+        const res = await serverClient.post({});
+        setMembers(res.data);
+      } catch (error) {
+        console.error('Error fetching members:', error);
+      }
+    };
+    fetchMembers();
+  }, []);
+
+  // dropdown option
+  const assigneeOption = members
+    .filter((member) => member.username !== userName)
+    .map((member) => ({
+      value: member.userId,
+      label: member.username,
+    }));
+
   return (
     <div className='flex items-center justify-centermin-h-screen'>
       <div className='fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50'>
@@ -40,6 +88,17 @@ const AssignTask: React.FC<AssignTaskProps> = ({ onSubmit, selectedTask, descrip
                 </div>
               ))}
             </div>
+          </div>
+          {/* assignee */}
+          <div className='py-4'>
+            <p className='py-3'>Assigning to</p>
+            <Select
+              id='assignee'
+              placeholder='Select Assignee'
+              className=''
+              options={assigneeOption}
+              onChange={(selectedOption) => setSelectedAssignee(selectedOption ? { userId: selectedOption.value, username: selectedOption.label } : null)}
+            />
           </div>
           {/* desc */}
           <div className='py-4'>
