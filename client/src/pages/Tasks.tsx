@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
 import ServerClient from '../services/ServerClient';
+import useLoginStore from '../store/useLoginStore';
 import Grid from '../components/Grid';
 import Tab from '../components/Tab';
 import Button from '../components/Button';
 import AssignTask from './AssignTask';
+
+interface Assignee {
+  userId: number;
+  username: string;
+}
 
 const Tasks = () => {
   const [activeTab, setActiveTab] = useState('My Tasks');
@@ -11,14 +17,17 @@ const Tasks = () => {
   const [taskData, setTaskData] = useState([]);
   const [selectedTask, setSelectedTask] = useState('');
   const [selectedDocumentType, setSelectedDocumentType] = useState('');
+  const [selectedAssignee, setSelectedAssignee] = useState<Assignee | null>(null);
+  // const [selectedAssignee, setSelectedAssignee] = useState<Assignee[]>([]);
   const [description, setDescription] = useState('');
+  const { userId, userName, flag } = useLoginStore();
 
   useEffect(() => {
     const fetchTaskData = async () => {
       try {
         const serverClient = new ServerClient('/api/retrieveTasks');
-        const res = await serverClient.get({});
-        // console.log('res', res.data);
+        const res = await serverClient.post({ userId, userName });
+        console.log('res', res.data);
         setTaskData(res.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -32,15 +41,17 @@ const Tasks = () => {
     setAssignTaskOpen(true);
   };
 
-  // submission
+  // assign submission
   const onSubmit = async () => {
     try {
       const serverClient = new ServerClient('/api/assignTasks');
-      const res = await serverClient.post({ taskName: selectedTask, documentType: selectedDocumentType, description });
+      const res = await serverClient.post({ userId: userId, userName: userName, taskName: selectedTask, documentType: selectedDocumentType, assignTo: selectedAssignee, description, flag });
       // console.log('res', res.data);
+      // reset
       setAssignTaskOpen(false);
       setSelectedTask('');
       setSelectedDocumentType('');
+      setSelectedAssignee(null);
       setDescription('');
     } catch (error) {
       console.error('Error', error);
@@ -79,6 +90,7 @@ const Tasks = () => {
           selectedTask={selectedTask}
           description={description}
           selectedDocumentType={selectedDocumentType}
+          setSelectedAssignee={setSelectedAssignee}
           handleChangeTask={handleChangeTask}
           handleChangeDocumentType={handleChangeDocumentType}
           handleChangeDesc={handleChangeDesc}
