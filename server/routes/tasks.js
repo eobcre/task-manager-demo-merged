@@ -26,7 +26,7 @@ router.post('/assignTasks', async (req, res) => {
 
 router.post('/retrieveTasks', async (req, res) => {
   const { userId } = req.body;
-  console.log('userId', userId);
+  // console.log('userId', userId);
 
   try {
     const tasks = await AssignTask.find({ 'assignTo.userId': userId });
@@ -40,6 +40,23 @@ router.post('/retrieveTasks', async (req, res) => {
   } catch (error) {
     console.log('Error retrieving tasks:', error.message);
     res.status(500).json({ message: error.message });
+  }
+});
+
+router.post('/retrieveAssignedTasks', async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const assignedTasks = await AssignTask.find({ userId });
+
+    if (assignedTasks.length === 0) {
+      return res.status(404).json({ message: 'No assigned tasks found.' });
+    }
+
+    res.json(assignedTasks);
+  } catch (error) {
+    console.log('Error retrieving assigned tasks:', error.message);
+    res.status(505).json({ message: error.message });
   }
 });
 
