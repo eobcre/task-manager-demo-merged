@@ -15,6 +15,7 @@ const Tasks = () => {
   const [activeTab, setActiveTab] = useState('My Tasks');
   const [assignTaskOpen, setAssignTaskOpen] = useState(false);
   const [taskData, setTaskData] = useState([]);
+  const [assignedTaskData, setAssignedTaskData] = useState([]);
   const [selectedTask, setSelectedTask] = useState('');
   const [selectedDocumentType, setSelectedDocumentType] = useState('');
   const [selectedAssignee, setSelectedAssignee] = useState<Assignee | null>(null);
@@ -32,8 +33,23 @@ const Tasks = () => {
     }
   };
 
+  const fetchAssignedTaskData = async () => {
+    try {
+      const serverClient = new ServerClient('/api/retrieveAssignedTasks');
+      const res = await serverClient.post({ userId });
+      console.log('fetchAssignedTaskData res', res.data);
+      setAssignedTaskData(res.data);
+    } catch (error) {
+      console.error('Error fetching assigned task data:', error);
+    }
+  };
+
   useEffect(() => {
-    fetchTaskData();
+    if (activeTab === 'My Tasks') {
+      fetchTaskData();
+    } else if (activeTab === 'Assigned') {
+      fetchAssignedTaskData();
+    }
   });
 
   // assign task button
@@ -47,7 +63,11 @@ const Tasks = () => {
       const serverClient = new ServerClient('/api/assignTasks');
       await serverClient.post({ userId, userName, taskName: selectedTask, documentType: selectedDocumentType, assignTo: selectedAssignee, description, flag });
       // console.log('res', res.data);
-      fetchTaskData();
+      if (activeTab === 'My Tasks') {
+        fetchTaskData();
+      } else if (activeTab === 'Assigned') {
+        fetchAssignedTaskData();
+      }
       // reset
       setAssignTaskOpen(false);
       setSelectedTask('');
@@ -83,7 +103,8 @@ const Tasks = () => {
           <Button buttonName='Assign Task' buttonStyle='text-white bg-purple hover:opacity-90 rounded-md px-6 py-2' buttonClick={handleClickAssignTask} />
         </div>
         <Tab activeTab={activeTab} setActiveTab={setActiveTab} />
-        {activeTab === 'My Tasks' && <Grid taskData={taskData} />}
+        {activeTab === 'My Tasks' && <Grid data={taskData} />}
+        {activeTab === 'Assigned' && <Grid data={assignedTaskData} />}
       </div>
       {assignTaskOpen && (
         <AssignTask
