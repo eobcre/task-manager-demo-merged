@@ -18,23 +18,23 @@ const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState('');
   const [selectedDocumentType, setSelectedDocumentType] = useState('');
   const [selectedAssignee, setSelectedAssignee] = useState<Assignee | null>(null);
-  // const [selectedAssignee, setSelectedAssignee] = useState<Assignee[]>([]);
   const [description, setDescription] = useState('');
   const { userId, userName, flag } = useLoginStore();
 
+  const fetchTaskData = async () => {
+    try {
+      const serverClient = new ServerClient('/api/retrieveTasks');
+      const res = await serverClient.post({ userId });
+      console.log('res', res.data);
+      setTaskData(res.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchTaskData = async () => {
-      try {
-        const serverClient = new ServerClient('/api/retrieveTasks');
-        const res = await serverClient.post({ userId });
-        console.log('res', res.data);
-        setTaskData(res.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
     fetchTaskData();
-  }, []);
+  });
 
   // assign task button
   const handleClickAssignTask = () => {
@@ -45,8 +45,9 @@ const Tasks = () => {
   const onSubmit = async () => {
     try {
       const serverClient = new ServerClient('/api/assignTasks');
-      const res = await serverClient.post({ userId, userName, taskName: selectedTask, documentType: selectedDocumentType, assignTo: selectedAssignee, description, flag });
+      await serverClient.post({ userId, userName, taskName: selectedTask, documentType: selectedDocumentType, assignTo: selectedAssignee, description, flag });
       // console.log('res', res.data);
+      fetchTaskData();
       // reset
       setAssignTaskOpen(false);
       setSelectedTask('');
