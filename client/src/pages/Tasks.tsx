@@ -26,7 +26,7 @@ const Tasks = () => {
     const fetchTaskData = async () => {
       try {
         const serverClient = new ServerClient('/api/retrieveTasks');
-        const res = await serverClient.post({ userId, userName });
+        const res = await serverClient.post({ userId });
         console.log('res', res.data);
         setTaskData(res.data);
       } catch (error) {
@@ -45,7 +45,7 @@ const Tasks = () => {
   const onSubmit = async () => {
     try {
       const serverClient = new ServerClient('/api/assignTasks');
-      const res = await serverClient.post({ userId: userId, userName: userName, taskName: selectedTask, documentType: selectedDocumentType, assignTo: selectedAssignee, description, flag });
+      const res = await serverClient.post({ userId, userName, taskName: selectedTask, documentType: selectedDocumentType, assignTo: selectedAssignee, description, flag });
       // console.log('res', res.data);
       // reset
       setAssignTaskOpen(false);
