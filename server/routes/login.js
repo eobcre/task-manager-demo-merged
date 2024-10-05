@@ -5,8 +5,8 @@ const pool = require('../db/db');
 
 router.post('/login', async (req, res) => {
   const { name, passcode } = req.body;
-//   console.log('username:', name);
-//   console.log('passcode', passcode);
+  // console.log('username:', name);
+  // console.log('passcode', passcode);
 
   try {
     const result = await pool.query('SELECT * FROM login WHERE username = $1', [name]);
@@ -25,8 +25,10 @@ router.post('/login', async (req, res) => {
     }
     // console.log('user.passhash', user.passhash);
 
-    const token = jwt.sign({ id: user.id }, process.env.TOKEN_SECRET, { expiresIn: '1h' });
-    res.json({ name, message: 'Login successful!!!', token });
+    const token = jwt.sign({ id: user.userId }, process.env.TOKEN_SECRET, { expiresIn: '1h' });
+    res.json({ userId: user.userId, name, token, flag: user.flag });
+    // console.log('token', token);
+    // console.log('userId', userId);
   } catch (error) {
     console.error('Error login:', error);
     res.status(500).json({ message: 'Server error.' });
@@ -34,13 +36,13 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
-  
-    if (token) {
-      res.json({ message: 'Logged out!!!' });
-    } else {
-      res.status(400).json({ message: 'No token provided.' });
-    }
-  });
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (token) {
+    res.json({ message: 'Logged out!!!' });
+  } else {
+    res.status(400).json({ message: 'No token provided.' });
+  }
+});
 
 module.exports = router;
